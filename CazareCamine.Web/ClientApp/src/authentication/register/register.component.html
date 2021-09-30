@@ -1,1 +1,31 @@
-<p>register works!</p>
+<div class="form_container border border-light rounded container col-lg-4 col-md-6 col-sm-8">
+
+  <div class="form_title pb-3">
+    <h3>Register Form</h3>
+  </div>
+
+  <form [formGroup]="registerForm">
+    <div class="form-group">
+      <label for="fNameField">First Name</label>
+      <input class="form-control" formControlName="fNameField" />
+    </div>
+
+    <div class="form-group">
+      <label for="lNameField">Last Name</label>
+      <input class="form-control" formControlName="lNameField" />
+    </div>
+
+    <div class="form-group">
+      <label for="emailField">Email address</label>
+      <input type="email" class="form-control" formControlName="emailField">
+    </div>
+
+    <div class="form-group">
+      <label for="passwordField">Password</label>
+      <input type="password" class="form-control" formControlName="passwordField">
+    </div>
+
+    <button (click)="sendFormValues()" class="btn btn-primary">Submit</button>
+  </form>
+
+</div>
