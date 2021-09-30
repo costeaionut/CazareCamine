@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CazareCamine.Data.Context
 {
-    class UserContext : DbContext
+    public class UserContext : DbContext
     {
         public UserContext(DbContextOptions<UserContext> options) : base(options)
         {
