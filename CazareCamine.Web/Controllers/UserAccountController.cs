@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CazareCamine.Data.Services;
-using CazareCamine.Data.Models;
+using CazareCamine.Data.Entities.Models;
+using Microsoft.AspNetCore.Identity;
+using AutoMapper;
+using CazareCamine.Data.Entities.DTO;
 
 namespace CazareCamine.Web.Controllers
 {
@@ -12,37 +14,32 @@ namespace CazareCamine.Web.Controllers
     [Route("[controller]/[action]")]
     public class UserAccountController : Controller
     {
+        private readonly IMapper mapper;
+        private readonly UserManager<UserModel> userManager;
 
-        IUserService userService;
-
-        public UserAccountController(IUserService UserService)
+        public UserAccountController(IMapper Mapper, UserManager<UserModel> UserManager)
         {
-            userService = UserService;
-        }
-
-        [HttpGet]
-        public IActionResult GetAllUsers() =>
-            Ok(userService.GetAllUsers());
-
-        [HttpGet]
-        [Route("{userId}")]
-        public IActionResult GetUserById(int userId)
-        {
-            UserModel user = userService.GetUserById(userId);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(user);
+            userManager = UserManager;
+            mapper = Mapper;
         }
 
         [HttpPost]
-        public IActionResult RegisterUser([FromBody] UserModel user)
+        public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDTO userForRegistration)
         {
-            userService.RegisterUser(user);
-            return Ok();
+            if (userForRegistration == null || !ModelState.IsValid)
+                return BadRequest();
+
+            var user = mapper.Map<UserModel>(userForRegistration);
+            var result = await userManager.CreateAsync(user, userForRegistration.Password);
+
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description);
+
+                return BadRequest(new RegistrationResponseDTO { Errors = errors });
+            }
+
+            return StatusCode(201);
         }
 
     }

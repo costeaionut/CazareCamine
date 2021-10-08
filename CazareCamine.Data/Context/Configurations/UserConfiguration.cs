@@ -1,4 +1,4 @@
-﻿using CazareCamine.Data.Models;
+﻿using CazareCamine.Data.Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -13,6 +13,7 @@ namespace CazareCamine.Data.Context.Configurations
     {
         public void Configure(EntityTypeBuilder<UserModel> builder)
         {
+            /*
             builder
                 .HasKey(u => u.UserId);
 
@@ -33,7 +34,7 @@ namespace CazareCamine.Data.Context.Configurations
                 .Property(u => u.FirstName)
                 .HasColumnType("varchar(50)")
                 .IsRequired();
-
+            */
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using CazareCamine.Data.Context.Configurations;
-using CazareCamine.Data.Models;
+using CazareCamine.Data.Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace CazareCamine.Data.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            new UserConfiguration().Configure(modelBuilder.Entity<UserModel>());
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

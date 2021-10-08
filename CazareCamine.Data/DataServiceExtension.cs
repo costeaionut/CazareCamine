@@ -1,5 +1,4 @@
 ﻿using CazareCamine.Data.Context;
-using CazareCamine.Data.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +11,6 @@ namespace CazareCamine.Data
         public static IServiceCollection RegisterDataServices(this IServiceCollection services, IConfiguration configuration)
         {
 
-            services.AddScoped<IUserService, UserService>();
             services.AddDbContext<UserContext>(o => {
                 o.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             });
