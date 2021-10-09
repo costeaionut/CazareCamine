@@ -15,7 +15,7 @@ export class RegisterComponent implements OnInit {
   errorList: Array<string> = []
 
   baseUrl: string;
-  public registerForm: FormGroup;
+  registerForm: FormGroup;
 
   constructor(
     private http: HttpClient,

@@ -14,7 +14,18 @@ namespace CazareCamine.Web
     {
         public static IServiceCollection ServiceExtensions(this IServiceCollection services, IConfiguration configuration)
         {
+            //Enable Cross Origin Requests
+            services.AddCors(options =>
+            {
+                options.AddPolicy("EnableCORS", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                       .AllowAnyHeader()
+                       .AllowAnyMethod();
+                });
+            });
 
+            //Enable authentication scheme
             var securityKey = configuration.GetSection("SymetricSecurityKey").Value;
 
             services.AddAuthentication(opt => {

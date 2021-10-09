@@ -35,7 +35,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\authentication\models\currentUser.ts" />
     <None Remove="ClientApp\src\authentication\models\responseRegistrationDTO.ts" />
+    <None Remove="ClientApp\src\authentication\models\userForLoginDTO.ts" />
   </ItemGroup>
 
   <ItemGroup>

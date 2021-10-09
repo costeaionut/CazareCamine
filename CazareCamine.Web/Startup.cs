@@ -66,6 +66,7 @@ namespace CazareCamine.Web
             }
 
             app.UseRouting();
+            app.UseCors("EnableCORS");
 
             app.UseAuthentication();
             app.UseAuthorization();

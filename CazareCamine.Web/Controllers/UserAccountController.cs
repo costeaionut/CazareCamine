@@ -92,7 +92,7 @@ namespace CazareCamine.Web.Controllers
                 issuer: "http://localhost:5000",
                 audience: "http://localhost:5000",
                 claims: userClaims,
-                expires: DateTime.Now.AddMinutes(5),
+                expires: DateTime.Now.AddDays(36),
                 signingCredentials: signinCredentials
             );
 
@@ -101,5 +101,34 @@ namespace CazareCamine.Web.Controllers
             return Ok(new { Token = tokenString });
         }
 
+        [HttpGet]
+        public IActionResult GetCurrentUser()
+        {
+            CurrentUser user = new();
+
+            var identity = (ClaimsIdentity)User.Identity;
+            IEnumerable<Claim> claims = identity.Claims;
+
+            if (claims.Count() == 0)
+            {
+                user.IsAuthenticated = false;
+                return Ok(user);
+            }
+
+            //Add Roles
+            var userRoleClaims = claims.Where(c => c.Type == ClaimTypes.Role);
+            foreach(var claim in userRoleClaims)
+                user.Roles.Add(claim.Value);
+
+            //Add Email
+            user.Email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+
+            //Add First + Last Name
+            string fullname = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
+            user.LastName = fullname.Split(',')[0];
+            user.FirstName = fullname.Split(',')[1];
+
+            return Ok(user);
+        }
     }
 }
