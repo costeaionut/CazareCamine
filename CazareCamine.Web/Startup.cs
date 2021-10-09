@@ -2,6 +2,7 @@ using AutoMapper;
 using CazareCamine.Data;
 using CazareCamine.Data.Context;
 using CazareCamine.Data.Entities.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,6 +11,8 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace CazareCamine.Web
 {
@@ -27,8 +30,12 @@ namespace CazareCamine.Web
         {
             services.AddControllersWithViews();
             services.RegisterDataServices(Configuration);
+
             services.AddIdentity<UserModel, IdentityRole>()
                 .AddEntityFrameworkStores<UserContext>();
+
+            services.ServiceExtensions(Configuration);
+
             // In production, the Angular files will be served from this directory
             services.AddAutoMapper(typeof(Startup));
             services.AddSpaStaticFiles(configuration =>
@@ -59,6 +66,9 @@ namespace CazareCamine.Web
             }
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

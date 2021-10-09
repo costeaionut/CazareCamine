@@ -7,6 +7,12 @@ using CazareCamine.Data.Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using AutoMapper;
 using CazareCamine.Data.Entities.DTO;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using CazareCamine.Data.Services;
 
 namespace CazareCamine.Web.Controllers
 {
@@ -16,11 +22,19 @@ namespace CazareCamine.Web.Controllers
     {
         private readonly IMapper mapper;
         private readonly UserManager<UserModel> userManager;
+        private readonly IConfiguration configuration;
+        private IRoleManager roleManager;
 
-        public UserAccountController(IMapper Mapper, UserManager<UserModel> UserManager)
+        public UserAccountController(
+            IMapper Mapper, 
+            UserManager<UserModel> UserManager, 
+            IConfiguration Configuration,
+            IRoleManager RoleManager)
         {
             userManager = UserManager;
             mapper = Mapper;
+            configuration = Configuration;
+            roleManager = RoleManager;
         }
 
         [HttpPost]
@@ -40,6 +54,51 @@ namespace CazareCamine.Web.Controllers
             }
 
             return StatusCode(201);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LoginUser([FromBody] UserForLoginDTO userForLogin)
+        {
+
+            if(userForLogin == null)
+                return BadRequest("Invalid client request");
+            
+            UserModel user = await userManager.FindByEmailAsync(userForLogin.Email);
+            if(user == null)
+                return Unauthorized("Email is invalid!");
+            
+
+            var passwordCheck = await userManager.CheckPasswordAsync(user, userForLogin.Password);
+            if(!passwordCheck)
+                return Unauthorized("Password is invalid!");
+
+            var configSecurityKey = configuration.GetSection("SymetricSecurityKey").Value;
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configSecurityKey));
+            var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+            var userClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.LastName + ", " + user.FirstName),
+                new Claim(ClaimTypes.Email, user.Email),
+            };
+
+            List<string> roles = roleManager.GetUserRoles(user);
+            foreach(string role in roles)
+            {
+                Claim roleClaim = new Claim(ClaimTypes.Role, role);
+                userClaims.Add(roleClaim);
+            }
+
+            var tokenOptions = new JwtSecurityToken(
+                issuer: "http://localhost:5000",
+                audience: "http://localhost:5000",
+                claims: userClaims,
+                expires: DateTime.Now.AddMinutes(5),
+                signingCredentials: signinCredentials
+            );
+
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+
+            return Ok(new { Token = tokenString });
         }
 
     }
