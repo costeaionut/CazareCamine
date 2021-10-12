@@ -13,6 +13,7 @@ import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { AuthenticationModule } from '../authentication/authentication.module';
 import { LoginComponent } from '../authentication/login/login.component';
 import { RegisterComponent } from '../authentication/register/register.component';
+import { UserManagementComponent } from './user-management/user-management.component';
 
 export function getToken() {
   return localStorage.jwt;
@@ -24,7 +25,8 @@ export function getToken() {
     NavMenuComponent,
     HomeComponent,
     CounterComponent,
-    FetchDataComponent
+    FetchDataComponent,
+    UserManagementComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
