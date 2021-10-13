@@ -46,8 +46,10 @@ export class LoginComponent implements OnInit {
     this.authService.loginUser(user)
       .subscribe(
         result => {
-          const token = result.token;
-          localStorage.setItem("jwt", token);
+          const accessToken = result.accessToken;
+          const refreshToken = result.refreshToken;
+          localStorage.setItem("jwt", accessToken);
+          localStorage.setItem("refreshToken", refreshToken);
           this.invalidLogin = false;
           window.location.href = "/";
         }, err => {

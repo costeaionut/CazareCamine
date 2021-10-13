@@ -13,6 +13,7 @@ using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using CazareCamine.Data.Services;
+using CazareCamine.Data.Services.Token;
 
 namespace CazareCamine.Web.Controllers
 {
@@ -23,18 +24,21 @@ namespace CazareCamine.Web.Controllers
         private readonly IMapper mapper;
         private readonly UserManager<UserModel> userManager;
         private readonly IConfiguration configuration;
-        private IRoleManager roleManager;
+        private readonly IRoleManager roleManager;
+        private readonly ITokenService tokenService;
 
         public UserAccountController(
             IMapper Mapper, 
             UserManager<UserModel> UserManager, 
             IConfiguration Configuration,
-            IRoleManager RoleManager)
+            IRoleManager RoleManager,
+            ITokenService TokenService)
         {
             userManager = UserManager;
             mapper = Mapper;
             configuration = Configuration;
             roleManager = RoleManager;
+            tokenService = TokenService;
         }
 
         [HttpPost]
@@ -72,9 +76,6 @@ namespace CazareCamine.Web.Controllers
             if(!passwordCheck)
                 return Unauthorized("Password is invalid!");
 
-            var configSecurityKey = configuration.GetSection("SymetricSecurityKey").Value;
-            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configSecurityKey));
-            var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
             var userClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.LastName + ", " + user.FirstName),
@@ -88,17 +89,13 @@ namespace CazareCamine.Web.Controllers
                 userClaims.Add(roleClaim);
             }
 
-            var tokenOptions = new JwtSecurityToken(
-                issuer: "http://localhost:5000",
-                audience: "http://localhost:5000",
-                claims: userClaims,
-                expires: DateTime.Now.AddDays(36),
-                signingCredentials: signinCredentials
-            );
+            var accessToken = tokenService.GenerateAccessToken(userClaims);
+            var refreshToken = tokenService.GenerateRefreshToken();
 
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpirationTime = DateTime.Now.AddDays(7);
 
-            return Ok(new { Token = tokenString });
+            return Ok(new { accessToken, refreshToken });
         }
 
         [HttpGet]

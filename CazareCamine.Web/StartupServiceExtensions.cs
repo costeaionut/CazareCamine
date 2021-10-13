@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using CazareCamine.Data.Services.Token;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +15,8 @@ namespace CazareCamine.Web
     {
         public static IServiceCollection ServiceExtensions(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddTransient<ITokenService, TokenService>();
+
             //Enable Cross Origin Requests
             services.AddCors(options =>
             {
